@@ -1,0 +1,56 @@
+习题二：编写一个http服务器程序实现下列功能：
+在客服端的浏览器的地址行中输入：http://localhost:3000/文件名。
+（a）	若在服务器上该文件不存在，则在服务器上创建该文件，并向客户端浏览器返回信息：该文件不存在，我已经创建该文件。
+（c）	若该文件存在，则读取该文件，并向向客户端浏览器返回两个段落的信息：
+该文件存在
+文件内容为：（此处为文件内容）
+
+
+
+const fs = require('fs');
+const http = require('http');
+
+const server = http.createServer(function(req, res){
+	res.writeHead(200, {
+		'content-type':'text/html',
+		'charset':'utf-8'
+	});
+	let url = req.url;
+	fs.access('.'+url.toString(), fs.constants.F_OK,accesscallback1);
+	function accesscallback1(err){
+	if(err){
+		console.log("文件:不存在");
+		res.write("<html>");
+		res.write("<head></head>");
+		res.write("<title>我是第一个访问的</title>");
+		res.write("<meta charset=UTF-8 >");
+		res.write("<body> <p>文件: 不存在</p> </body>");
+		res.write("</html>");	
+		res.end("创建成功");
+		fs.appendFile('.'+url.toString(), "姓名：吕政哲   学号：2019231237", "utf-8", (err)=>{
+			if (err) {throw err;}
+			console.log("succse write file");
+		});
+	
+	}else{
+		console.log("文件:gg存在");
+		res.write("<html>");
+		res.write("<head></head>");
+		res.write("<title>我是第一个访问的</title>");
+		res.write("<meta charset=UTF-8 >");
+		res.write("<body><p>文件: 存在</p> </body>");
+		res.write("</html>");
+		fs.stat('.'+url.toString(),function(err,stats){
+	  	var data = fs.readFileSync('.'+url.toString(), "utf-8");
+	  	res.write(data);
+	  	res.end();
+	  });    
+
+	}
+}
+
+});
+server.listen(3000, function(){
+	console.log('开始监听3000端口');
+})
+
